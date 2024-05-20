@@ -1,5 +1,6 @@
 import json
 
+from flask import current_app
 from flask import Blueprint, Response
 
 from rentomatic.repository.memrepo import MemRepo
@@ -7,6 +8,24 @@ from rentomatic.use_cases.room_list import room_list_use_case
 from rentomatic.serializers.room import RoomJsonEncoder
 
 blueprint = Blueprint("room", __name__)
+
+# -----------------
+# Request Callbacks
+# -----------------
+
+@blueprint.before_request
+def stocks_before_request():
+    print('Calling before_request() for the room blueprint...')
+
+@blueprint.after_request
+def stocks_after_request(response):
+    print('Calling after_request() for the room blueprint...')
+    return response
+
+
+@blueprint.teardown_request
+def stocks_teardown_request(error=None):
+    print('Calling teardown_request() for the room blueprint...')
 
 rooms = [
     {
@@ -42,6 +61,7 @@ rooms = [
 
 @blueprint.route("/rooms", methods=["GET"])
 def room_list():
+    print('Calling the room_list() function.')
     repo = MemRepo(rooms)
     result = room_list_use_case(repo)
 
